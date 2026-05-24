@@ -12,10 +12,6 @@ class Fish(models.Model):
     min_depth_medium = models.IntegerField()
     min_depth_large = models.IntegerField()
 
-    max_depth_small = models.IntegerField()
-    max_depth_medium = models.IntegerField()
-    max_depth_large = models.IntegerField()
-
     favourite_depth_small = models.IntegerField()
     favourite_depth_medium = models.IntegerField()
     favourite_depth_large = models.IntegerField()
