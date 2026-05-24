@@ -12,9 +12,17 @@ class Fish(models.Model):
     min_depth_medium = models.IntegerField()
     min_depth_large = models.IntegerField()
 
-    favourite_depth_small = models.IntegerField()
-    favourite_depth_medium = models.IntegerField()
-    favourite_depth_large = models.IntegerField()
+    amount_on_bottom_small = models.IntegerField()
+    amount_on_bottom_medium = models.IntegerField()
+    amount_on_bottom_large = models.IntegerField()
+
+    amount_on_middle_small = models.IntegerField()
+    amount_on_middle_medium = models.IntegerField()
+    amount_on_middle_large = models.IntegerField()
+
+    amount_on_top_small = models.IntegerField()
+    amount_on_top_medium = models.IntegerField()
+    amount_on_top_large = models.IntegerField()
 
     filter = models.IntegerField()
     rating = models.IntegerField()
