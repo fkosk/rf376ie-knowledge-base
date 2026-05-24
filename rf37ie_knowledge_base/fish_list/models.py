@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 class Fish(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.CharField(primary_key=True)
     name = models.CharField(max_length=255)
 
     min_weight = models.IntegerField()
