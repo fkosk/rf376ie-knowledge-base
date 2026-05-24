@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 class Fish(models.Model):
@@ -49,9 +50,9 @@ class Fish(models.Model):
     valuable_weight = models.IntegerField()
     experience = models.IntegerField()
     experience_rate = models.IntegerField()
-    biting_direction = models.CharField(max_length=20)
-    chum_base = models.CharField(max_length=20)
-    chum_aromatizer = models.CharField(max_length=20)
+    biting_direction = ArrayField(models.CharField(max_length=20), blank=True, default=list)
+    chum_base = ArrayField(models.CharField(max_length=20), blank=True, default=list)
+    chum_aromatizer = ArrayField(models.CharField(max_length=20), blank=True, default=list)
 
     lures_small = models.JSONField()
     lures_medium = models.JSONField()
