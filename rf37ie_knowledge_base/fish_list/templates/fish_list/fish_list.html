@@ -1,0 +1,292 @@
+{% load fish_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список рыб</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        padding: 20px;
+    }
+
+    .controls {
+        margin-bottom: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .controls h3 {
+        margin-bottom: 10px;
+    }
+
+    .column-toggles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    .column-toggle {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+    }
+
+    .column-toggle input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    .buttons {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: auto;
+        max-height: calc(100vh - 250px);
+    }
+
+    table {
+        border-collapse: collapse;
+        font-size: 13px;
+        /* Remove fixed width */
+        width: auto;
+        /* This makes table as wide as its content */
+        white-space: nowrap;
+    }
+
+    thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+        white-space: nowrap;
+        /* Let browser determine width based on content */
+        width: 1px;
+        /* This forces minimum width fitting content */
+    }
+
+    td {
+        padding: 6px 12px;
+        border-bottom: 1px solid #dee2e6;
+        white-space: nowrap;
+        /* Match header width */
+        width: 1px;
+    }
+
+    tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    tr:nth-child(even):hover {
+        background-color: #f0f0f0;
+    }
+
+    .hidden-column {
+        display: none;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 50px;
+        font-size: 18px;
+        color: #6c757d;
+    }
+
+    .error {
+        color: #dc3545;
+        text-align: center;
+        padding: 20px;
+    }
+</style>
+</head>
+<body>
+    <div class="controls">
+        <h3>Отображение столбцов</h3>
+        <div class="column-toggles" id="column-toggles">
+            {% for field in fields %}
+            <label class="column-toggle">
+                <input type="checkbox"
+                       value="{{ field }}"
+                       checked
+                       onchange="toggleColumn('{{ field }}')">
+                {{ field_names_ru|get_item:field }}
+            </label>
+            {% endfor %}
+        </div>
+        <div class="buttons">
+            <button class="btn btn-primary" onclick="selectAll()">Выбрать все</button>
+            <button class="btn btn-secondary" onclick="deselectAll()">Снять все</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="fish-table">
+            <thead>
+                <tr>
+                    {% for field in fields %}
+                    <th class="column-{{ field }}" data-field="{{ field }}">
+                        {{ field_names_ru|get_item:field }}
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in fish %}
+                <tr>
+                    {% for field in fields %}
+                    <td class="column-{{ field }}">
+                        {% if field == 'biting_direction' or field == 'chum_base' or field == 'chum_aromatizer' %}
+                            {{ f|get_attr:field|join:", " }}
+                        {% elif field == 'lures_small' or field == 'lures_medium' or field == 'lures_large' %}
+                            {% with lures=f|get_attr:field %}
+                                {% if lures %}
+                                    {% for key, value in lures.items %}
+                                        {{ key }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            {{ f|get_attr:field }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ fields|length }}" class="loading">
+                        Нет данных о рыбах
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Store column visibility state
+        let columnStates = {};
+
+        // Initialize column states
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.column-toggle input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                columnStates[checkbox.value] = checkbox.checked;
+            });
+        });
+
+        function toggleColumn(fieldName) {
+            const checkbox = document.querySelector(`input[value="${fieldName}"]`);
+            const isVisible = checkbox.checked;
+
+            // Update state
+            columnStates[fieldName] = isVisible;
+
+            // Toggle header
+            const th = document.querySelector(`th[data-field="${fieldName}"]`);
+            if (th) {
+                th.classList.toggle('hidden-column', !isVisible);
+            }
+
+            // Toggle all cells in this column
+            const cells = document.querySelectorAll(`td.column-${fieldName}`);
+            cells.forEach(cell => {
+                cell.classList.toggle('hidden-column', !isVisible);
+            });
+        }
+
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('.column-toggle input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                columnStates[checkbox.value] = true;
+
+                // Show column
+                const th = document.querySelector(`th[data-field="${checkbox.value}"]`);
+                if (th) th.classList.remove('hidden-column');
+
+                const cells = document.querySelectorAll(`td.column-${checkbox.value}`);
+                cells.forEach(cell => cell.classList.remove('hidden-column'));
+            });
+        }
+
+        function deselectAll() {
+            const checkboxes = document.querySelectorAll('.column-toggle input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                columnStates[checkbox.value] = false;
+
+                // Hide column
+                const th = document.querySelector(`th[data-field="${checkbox.value}"]`);
+                if (th) th.classList.add('hidden-column');
+
+                const cells = document.querySelectorAll(`td.column-${checkbox.value}`);
+                cells.forEach(cell => cell.classList.add('hidden-column'));
+            });
+        }
+    </script>
+</body>
+<div style="background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <a href="{% url 'fish_list:fish_search' %}" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 16px;">
+        🔍 Перейти к поиску рыбы
+    </a>
+</div>
+</html>

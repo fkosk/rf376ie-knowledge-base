@@ -1,0 +1,426 @@
+{% load fish_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск рыбы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-section h1 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .search-field label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .search-field input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            min-width: 250px;
+            transition: border-color 0.3s;
+        }
+
+        .search-field input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #764ba2;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .fish-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .fish-image-container {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .fish-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .fish-image-placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .fish-title {
+            flex: 1;
+        }
+
+        .fish-title h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .fish-title .fish-id {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 25px 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item .value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-section {
+            margin-top: 25px;
+        }
+
+        .info-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-section">
+            <h1>🐟 Поиск рыбы</h1>
+            <form method="GET" class="search-form">
+                <div class="search-field">
+                    <label for="id">ID рыбы</label>
+                    <input type="text"
+                           id="id"
+                           name="id"
+                           placeholder="Например: 1001"
+                           value="{{ search_id }}">
+                </div>
+                <div class="search-field">
+                    <label for="name">Название рыбы</label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           placeholder="Например: Окунь"
+                           value="{{ search_name }}">
+                </div>
+                <button type="submit" class="search-btn">🔍 Поиск</button>
+            </form>
+            <a href="{% url 'fish_list:fish_list' %}" class="nav-link">← Вернуться к таблице</a>
+
+            {% if error_message %}
+            <div class="error-message">
+                {{ error_message }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if fish %}
+        <div class="fish-card">
+            <div class="card-header">
+                <div class="fish-image-container">
+                    {% if fish_image_url %}
+                    <img src="{{ fish_image_url }}" alt="{{ fish.name }}">
+                    {% else %}
+                    <div class="fish-image-placeholder">
+                        🐟<br>Изображение отсутствует
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="fish-title">
+                    <h2>{{ fish.name }}</h2>
+                    <div class="fish-id">ID: {{ fish.id }}</div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="info-section">
+                    <h3>Основная информация</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'min_weight' }}</label>
+                            <div class="value">{{ fish.min_weight }} - {{ fish.max_weight }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'filter' }}</label>
+                            <div class="value">{{ fish.filter }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'rating' }}</label>
+                            <div class="value">{{ fish.rating }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'bite_strength' }}</label>
+                            <div class="value">{{ fish.bite_strength }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'price' }}</label>
+                            <div class="value">{{ fish.price }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'rate' }}</label>
+                            <div class="value">{{ fish.rate }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'valuable_weight' }}</label>
+                            <div class="value">{{ fish.valuable_weight }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'experience' }}</label>
+                            <div class="value">{{ fish.experience }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'experience_rate' }}</label>
+                            <div class="value">{{ fish.experience_rate }}</div>
+                        </div>
+                        {% if fish.biting_direction %}
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'biting_direction' }}</label>
+                            <div class="value">{{ fish.biting_direction|join:", " }}</div>
+                        </div>
+                        {% endif %}
+                        {% if fish.chum_base %}
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'chum_base' }}</label>
+                            <div class="value">{{ fish.chum_base|join:", " }}</div>
+                        </div>
+                        {% endif %}
+                        {% if fish.chum_aromatizer %}
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'chum_aromatizer' }}</label>
+                            <div class="value">{{ fish.chum_aromatizer|join:", " }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Глубина и распределение</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Глубина (мал./сред./круп.)</label>
+                            <div class="value">{{ fish.min_depth_small }} / {{ fish.min_depth_medium }} / {{ fish.min_depth_large }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>На дне (мал./сред./круп.)</label>
+                            <div class="value">{{ fish.amount_on_bottom_small }} / {{ fish.amount_on_bottom_medium }} / {{ fish.amount_on_bottom_large }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>В толще (мал./сред./круп.)</label>
+                            <div class="value">{{ fish.amount_on_middle_small }} / {{ fish.amount_on_middle_medium }} / {{ fish.amount_on_middle_large }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>У поверхности (мал./сред./круп.)</label>
+                            <div class="value">{{ fish.amount_on_top_small }} / {{ fish.amount_on_top_medium }} / {{ fish.amount_on_top_large }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Характеристики по размеру</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'endurance_small' }} / {{ field_names_ru|get_item:'endurance_medium' }} / {{ field_names_ru|get_item:'endurance_large' }}</label>
+                            <div class="value">{{ fish.endurance_small }} / {{ fish.endurance_medium }} / {{ fish.endurance_large }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'accuracy_small' }} / {{ field_names_ru|get_item:'accuracy_medium' }} / {{ field_names_ru|get_item:'accuracy_large' }}</label>
+                            <div class="value">{{ fish.accuracy_small }} / {{ fish.accuracy_medium }} / {{ fish.accuracy_large }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'day_activity_small' }} / {{ field_names_ru|get_item:'day_activity_medium' }} / {{ field_names_ru|get_item:'day_activity_large' }}</label>
+                            <div class="value">{{ fish.day_activity_small }} / {{ fish.day_activity_medium }} / {{ fish.day_activity_large }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>{{ field_names_ru|get_item:'night_activity_small' }} / {{ field_names_ru|get_item:'night_activity_medium' }} / {{ field_names_ru|get_item:'night_activity_large' }}</label>
+                            <div class="value">{{ fish.night_activity_small }} / {{ fish.night_activity_medium }} / {{ fish.night_activity_large }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if fish.lures_small or fish.lures_medium or fish.lures_large %}
+                <div class="info-section">
+                    <h3>Наживки</h3>
+                    <div class="info-grid">
+                        {% if fish.lures_small %}
+                        <div class="info-item full-width">
+                            <label>{{ field_names_ru|get_item:'lures_small' }}</label>
+                            <div class="value">
+                                {% for lure, value in fish.lures_small.items %}
+                                    {{ lure }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if fish.lures_medium %}
+                        <div class="info-item full-width">
+                            <label>{{ field_names_ru|get_item:'lures_medium' }}</label>
+                            <div class="value">
+                                {% for lure, value in fish.lures_medium.items %}
+                                    {{ lure }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if fish.lures_large %}
+                        <div class="info-item full-width">
+                            <label>{{ field_names_ru|get_item:'lures_large' }}</label>
+                            <div class="value">
+                                {% for lure, value in fish.lures_large.items %}
+                                    {{ lure }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
