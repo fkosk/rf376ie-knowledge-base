@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои фишлоги</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 95%;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: auto;
+            max-height: calc(100vh - 150px);
+        }
+
+        table {
+            border-collapse: collapse;
+            font-size: 14px;
+            width: 100%;
+            min-width: 800px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #5a67d8;
+            white-space: nowrap;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+        }
+
+        th .sort-icon {
+            margin-left: 5px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        th .sort-icon.active {
+            opacity: 1;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f0f0ff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        tr:nth-child(even):hover {
+            background-color: #f0f0ff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #dc3545;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #999;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Мои фишлоги</h1>
+            <div style="display: flex; gap: 12px;">
+                <a href="{% url 'fish_list:fish_list' %}" class="nav-link">🐟 Список рыб</a>
+                <a href="{% url 'fish_list:import_fishlog' %}" class="nav-link">📁 Импорт FishLog</a>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="fishlog-table">
+                <thead>
+                    <tr>
+                        <th data-field="fish_name">Название рыбы<span class="sort-icon"> ↕</span></th>
+                        <th data-field="fish_weight">Вес<span class="sort-icon"> ↕</span></th>
+                        <th data-field="bait_name">Наживка<span class="sort-icon"> ↕</span></th>
+                        <th data-field="base_name">База<span class="sort-icon"> ↕</span></th>
+                        <th data-field="location_name">Локация<span class="sort-icon"> ↕</span></th>
+                        <th data-field="time">Время<span class="sort-icon"> ↕</span></th>
+                        <th data-field="depth">Глубина<span class="sort-icon"> ↕</span></th>
+                    </tr>
+                </thead>
+                <tbody id="fishlog-tbody">
+                    <tr>
+                        <td colspan="7" class="loading">Загрузка данных...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+        let fishlogData = [];
+
+        // Fetch data from API
+        async function loadFishlogData() {
+            try {
+                const response = await fetch('/api/fishlog-data/');
+                const data = await response.json();
+                fishlogData = data.fishlog_data;
+                renderTable(fishlogData);
+            } catch (error) {
+                document.getElementById('fishlog-tbody').innerHTML =
+                    '<tr><td colspan="7" class="error">❌ Ошибка загрузки данных</td></tr>';
+            }
+        }
+
+        // Render table with data
+        function renderTable(data) {
+            const tbody = document.getElementById('fishlog-tbody');
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">📋 Нет данных о фишлогах</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(log => `
+                <tr>
+                    <td>${log.fish_name || '-'}</td>
+                    <td>${log.fish_weight || '-'}</td>
+                    <td>${log.bait_name || '-'}</td>
+                    <td>${log.base_name || '-'}</td>
+                    <td>${log.location_name || '-'}</td>
+                    <td>${log.time || '-'}</td>
+                    <td>${log.depth || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Sort table
+        function sortTable(columnName) {
+            // Toggle sort direction
+            if (currentSortColumn === columnName) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = columnName;
+                currentSortDirection = 'asc';
+            }
+
+            // Update sort icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.classList.remove('active');
+                icon.textContent = ' ↕';
+            });
+
+            const currentHeader = document.querySelector(`th[data-field="${columnName}"]`);
+            const sortIcon = currentHeader.querySelector('.sort-icon');
+            sortIcon.classList.add('active');
+            sortIcon.textContent = currentSortDirection === 'asc' ? ' ↑' : ' ↓';
+
+            // Sort data
+            const sortedData = [...fishlogData].sort((a, b) => {
+                const aValue = (a[columnName] || '').toString();
+                const bValue = (b[columnName] || '').toString();
+
+                // Try numeric comparison
+                const aNum = parseFloat(aValue);
+                const bNum = parseFloat(bValue);
+
+                let comparison;
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    comparison = aNum - bNum;
+                } else {
+                    comparison = aValue.localeCompare(bValue, 'ru');
+                }
+
+                return currentSortDirection === 'asc' ? comparison : -comparison;
+            });
+
+            renderTable(sortedData);
+        }
+
+        // Add click handlers to headers
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFishlogData();
+
+            const headers = document.querySelectorAll('th');
+            headers.forEach(header => {
+                header.addEventListener('click', function() {
+                    sortTable(this.dataset.field);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -128,16 +128,19 @@ def get_fish_data(request):
     })
 
 def import_fishlog(request):
+    """Fishlog importer view"""
     success_message = None
     error_message = None
+    created = 0
+    skipped = 0
 
     if request.method == 'POST':
         filepath = request.POST.get('filepath')
 
         if filepath:
             try:
-                import_fish_log(filepath)
-                success_message = "Файл успешно импортирован!"
+                created, skipped = import_fish_log(filepath)
+                success_message = f"✅ Создано: {created}, ⏭️ Пропущено: {skipped}"
             except FileNotFoundError:
                 error_message = "Файл не найден. Проверьте путь."
             except Exception as e:
@@ -151,3 +154,27 @@ def import_fishlog(request):
     }
 
     return render(request, 'fish_list/fishlog_importer.html', context)
+
+def get_all_fishlogs(request):
+    """API endpoint to return all the fishlogs as JSON"""
+    fishlogs = FishLog.objects.all()
+    fishlog_data = []
+
+    for f in fishlogs:
+        fishlog_dict = {}
+        for field in FishLog._meta.fields:
+            value = getattr(f, field.name)
+            if isinstance(value, list):
+                value = ', '.join(str(v) for v in value)
+            elif isinstance(value, dict):
+                value = json.dumps(value, ensure_ascii=False)
+            fishlog_dict[field.name] = value  # ← Fixed: now assigning to dict
+        fishlog_data.append(fishlog_dict)
+
+    return JsonResponse({
+        'fishlog_data': fishlog_data
+    })
+
+def fishlog_data(request):
+    """View to display all fishlogs in a table"""
+    return render(request, 'fish_list/fishlog_data.html')

@@ -6,6 +6,8 @@ app_name = 'fish_list'
 urlpatterns = [
     path('', views.fish_list, name='fish_list'),
     path('search/', views.fish_search, name='fish_search'),
-    path('api/fish-data/', views.get_fish_data, name='fish_data_api'),
     path('import-fishlog/', views.import_fishlog, name='import_fishlog'),
+    path('fishlogs/', views.fishlog_data, name='fishlog_data'),
+    path('api/fish-data/', views.get_fish_data, name='fish_data_api'),
+    path('api/fishlog-data/', views.get_all_fishlogs, name='fishlog_data_api'),
 ]

@@ -62,11 +62,11 @@ class Fish(models.Model):
         return self.name
 
 class FishLog(models.Model):
-    fish_name = models.CharField(max_length=255)
-    fish_weight = models.IntegerField()
-    bait_name = models.CharField(max_length=255)
-    base_name = models.CharField(max_length=255)
-    location_name = models.CharField(max_length=255)
-    fish_id = models.ForeignKey(Fish, to_field='id', on_delete=models.CASCADE)
-    time = models.CharField(max_length=255)
-    depth = models.IntegerField()
+    fish_name = models.CharField(max_length=255, verbose_name='Название вида')
+    fish_weight = models.IntegerField(verbose_name='Вес')
+    bait_name = models.CharField(max_length=255, verbose_name='Наживка')
+    base_name = models.CharField(max_length=255, verbose_name='База')
+    location_name = models.CharField(max_length=255, verbose_name='Локация')
+    fish_id = models.CharField(max_length=255, verbose_name='ID рыбы')
+    time = models.CharField(max_length=255, verbose_name='Время')
+    depth = models.IntegerField(verbose_name='Глубина')
