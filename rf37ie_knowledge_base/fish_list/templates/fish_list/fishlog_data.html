@@ -332,6 +332,62 @@
         tr.row-valuable:nth-child(even) {
             background-color: #fdf2f2;
         }
+
+        .stats-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .stats-section.visible {
+            display: block;
+        }
+
+        .stats-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stats-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .stats-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        .stats-table tr:hover {
+            background-color: #f0f0ff;
+        }
+
+        .stats-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .stats-table th:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+        }
     </style>
 </head>
 <body>
@@ -394,6 +450,26 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="stats-section" id="stats-section" style="margin-top: 20px;">
+            <h2>📊 Статистика по наживкам</h2>
+            <div style="overflow-x: auto;">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th data-field="bait_name" onclick="sortStats('bait_name')">Наживка ↕</th>
+                            <th data-field="total" onclick="sortStats('total')">Всего ↕</th>
+                            <th data-field="regular" onclick="sortStats('regular')">Обычные ↕</th>
+                            <th data-field="valuable" onclick="sortStats('valuable')">Зачетные 💎 ↕</th>
+                            <th data-field="trophies" onclick="sortStats('trophies')">Трофейные 🏆 ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -493,6 +569,7 @@
         function applyFilters() {
             currentPage = 1;
             loadFishlogData(1);
+            loadBaitStatistics();
         }
 
         function resetFilters() {
@@ -500,12 +577,9 @@
             document.getElementById('filter-base').value = '';
             document.getElementById('filter-location').value = '';
 
-            populateDropdown('filter-fish', allFishNames);
-            populateDropdown('filter-base', allBaseNames);
-            populateDropdown('filter-location', allLocationNames);
-
             currentPage = 1;
             loadFishlogData(1);
+            loadBaitStatistics();
         }
 
         async function loadFishlogData(page = 1) {
@@ -632,6 +706,123 @@
             loadAllOptions();
             loadFishlogData(1);
         });
+
+        async function loadBaitStatistics() {
+            const fishName = document.getElementById('filter-fish').value;
+            const baseName = document.getElementById('filter-base').value;
+            const locationName = document.getElementById('filter-location').value;
+            const statsSection = document.getElementById('stats-section');
+            const tbody = document.getElementById('stats-tbody');
+
+            if (!fishName) {
+                statsSection.classList.remove('visible');
+                return;
+            }
+
+            statsSection.classList.add('visible');
+            tbody.innerHTML = '<tr><td colspan="5" class="loading">Загружаем статистику по наживкам...</td></tr>';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('fish_name', fishName);
+                if (baseName) params.append('base_name', baseName);
+                if (locationName) params.append('location_name', locationName);
+
+                const response = await fetch(`/api/bait-statistics/?${params.toString()}`);
+                const data = await response.json();
+
+                currentStatsData = data.statistics;
+                sortAndRenderStats();
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="error">❌ Ошибка загрузки статистики</td></tr>';
+            }
+        }
+
+        function renderStatistics(statistics) {
+            const tbody = document.getElementById('stats-tbody');
+
+            if (statistics.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = statistics.map(stat => `
+                <tr>
+                    <td><strong>${stat.bait_name}</strong></td>
+                    <td>${stat.total}</td>
+                    <td>${stat.regular}</td>
+                    <td style="color: #dc3545;">${stat.valuable}</td>
+                    <td style="color: #28a745;">${stat.trophies}</td>
+                </tr>
+            `).join('');
+        }
+
+        let statsSortField = 'total';
+        let statsSortOrder = 'desc';
+        let currentStatsData = [];
+
+        function sortStats(field) {
+            if (statsSortField === field) {
+                statsSortOrder = statsSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                statsSortField = field;
+                statsSortOrder = 'desc';
+            }
+
+            sortAndRenderStats();
+            updateStatsSortIcons();
+        }
+
+        function sortAndRenderStats() {
+            const sorted = [...currentStatsData].sort((a, b) => {
+                const aVal = a[statsSortField];
+                const bVal = b[statsSortField];
+
+                let comparison;
+                if (typeof aVal === 'number') {
+                    comparison = aVal - bVal;
+                } else {
+                    comparison = String(aVal).localeCompare(String(bVal), 'ru');
+                }
+
+                return statsSortOrder === 'asc' ? comparison : -comparison;
+            });
+
+            renderStatistics(sorted);
+        }
+
+        function updateStatsSortIcons() {
+            // Reset all sort indicators
+            document.querySelectorAll('.stats-table th').forEach(th => {
+                th.innerHTML = th.innerHTML.replace(/ [↑↓]$/, ' ↕');
+            });
+
+            // Update active sort indicator
+            const currentHeader = document.querySelector(`.stats-table th[data-field="${statsSortField}"]`);
+            if (currentHeader) {
+                currentHeader.innerHTML = currentHeader.innerHTML.replace(/ [↕↑↓]$/, '') +
+                    (statsSortOrder === 'asc' ? ' ↑' : ' ↓');
+            }
+        }
+
+        function renderStatistics(statistics) {
+            const tbody = document.getElementById('stats-tbody');
+
+            if (statistics.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = statistics.map(stat => `
+                <tr>
+                    <td><strong>${stat.bait_name}</strong></td>
+                    <td>${stat.total}</td>
+                    <td>${stat.regular}</td>
+                    <td style="color: #dc3545;">${stat.valuable}</td>
+                    <td style="color: #28a745;">${stat.trophies}</td>
+                </tr>
+            `).join('');
+        }
     </script>
 </body>
 </html>

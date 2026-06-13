@@ -295,3 +295,61 @@ def get_all_options(request):
     }
 
     return JsonResponse(data)
+
+def get_bait_statistics(request):
+    """API endpoint to return bait statistics"""
+    fish_name = request.GET.get('fish_name', '')
+    base_name = request.GET.get('base_name', '')
+    location_name = request.GET.get('location_name', '')
+
+    if not fish_name:
+        return JsonResponse({'statistics': []})
+
+    queryset = FishLog.objects.filter(fish_name=fish_name)
+    if base_name:
+        queryset = queryset.filter(base_name=base_name)
+    if location_name:
+        queryset = queryset.filter(location_name=location_name)
+
+    fish_data = {}
+    for fish in Fish.objects.all():
+        fish_data[fish.id] = {
+            'valuable_weight': fish.valuable_weight,
+            'is_trophy': 'installsoft' in fish.id.lower(),
+        }
+
+    all_logs = queryset.values_list('bait_name', 'fish_id', 'fish_weight')
+
+    bait_stats = {}
+    bait_order = []
+
+    for bait_name, fish_id, weight in all_logs:
+        if bait_name not in bait_stats:
+            bait_stats[bait_name] = {'total': 0, 'regular': 0, 'valuable': 0, 'trophies': 0}
+            bait_order.append(bait_name)
+
+        bait_stats[bait_name]['total'] += 1
+
+        fish_info = fish_data.get(fish_id)
+        if fish_info:
+            if fish_info['is_trophy']:
+                bait_stats[bait_name]['trophies'] += 1
+            elif weight > fish_info['valuable_weight']:
+                bait_stats[bait_name]['valuable'] += 1
+            else:
+                bait_stats[bait_name]['regular'] += 1
+        else:
+            bait_stats[bait_name]['regular'] += 1
+
+    statistics = []
+    for bait in bait_order:
+        stats = bait_stats[bait]
+        statistics.append({
+            'bait_name': bait,
+            'total': stats['total'],
+            'regular': stats['regular'],
+            'valuable': stats['valuable'],
+            'trophies': stats['trophies'],
+        })
+
+    return JsonResponse({'statistics': statistics})

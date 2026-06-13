@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/fishlog-data/', views.get_all_fishlogs, name='fishlog_data_api'),
     path('api/filter-options/', views.get_filter_options, name='filter_options_api'),
     path('api/all-options/', views.get_all_options, name='all_options_api'),
+    path('api/bait-statistics/', views.get_bait_statistics, name='bait_statistics_api'),
 ]
