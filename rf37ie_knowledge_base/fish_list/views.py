@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 from .models import Fish, FishLog
 import json
 import os
@@ -155,12 +156,48 @@ def import_fishlog(request):
 
     return render(request, 'fish_list/fishlog_importer.html', context)
 
-def get_all_fishlogs(request):
-    """API endpoint to return all the fishlogs as JSON"""
-    fishlogs = FishLog.objects.all()
-    fishlog_data = []
 
-    for f in fishlogs:
+def get_all_fishlogs(request):
+    """API endpoint to return paginated, sorted, filtered fishlogs as JSON"""
+    page = int(request.GET.get('page', 1))
+    per_page = int(request.GET.get('per_page', 1000))
+    sort_field = request.GET.get('sort', 'id')
+    sort_order = request.GET.get('order', 'desc')
+
+    # Dropdown filters
+    fish_name = request.GET.get('fish_name', '')
+    base_name = request.GET.get('base_name', '')
+    location_name = request.GET.get('location_name', '')
+
+    fishlogs = FishLog.objects.all()
+
+    # Apply dropdown filters
+    if fish_name:
+        fishlogs = fishlogs.filter(fish_name=fish_name)
+    if base_name:
+        fishlogs = fishlogs.filter(base_name=base_name)
+    if location_name:
+        fishlogs = fishlogs.filter(location_name=location_name)
+
+    # Validate sort field
+    valid_sort_fields = [field.name for field in FishLog._meta.fields]
+    if sort_field not in valid_sort_fields:
+        sort_field = 'id'
+
+    # Apply sorting
+    if sort_order == 'asc':
+        order_by = sort_field
+    else:
+        order_by = f'-{sort_field}'
+
+    fishlogs = fishlogs.order_by(order_by)
+
+    # Paginate
+    paginator = Paginator(fishlogs, per_page)
+    page_obj = paginator.get_page(page)
+
+    fishlog_data = []
+    for f in page_obj:
         fishlog_dict = {}
         for field in FishLog._meta.fields:
             value = getattr(f, field.name)
@@ -168,13 +205,61 @@ def get_all_fishlogs(request):
                 value = ', '.join(str(v) for v in value)
             elif isinstance(value, dict):
                 value = json.dumps(value, ensure_ascii=False)
-            fishlog_dict[field.name] = value  # ← Fixed: now assigning to dict
+            fishlog_dict[field.name] = value
         fishlog_data.append(fishlog_dict)
 
     return JsonResponse({
-        'fishlog_data': fishlog_data
+        'fishlog_data': fishlog_data,
+        'total_pages': paginator.num_pages,
+        'current_page': page,
+        'total_records': paginator.count,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+        'sort_field': sort_field,
+        'sort_order': sort_order,
     })
 
 def fishlog_data(request):
     """View to display all fishlogs in a table"""
     return render(request, 'fish_list/fishlog_data.html')
+
+
+def get_filter_options(request):
+    """API endpoint to get filter options based on current selections"""
+    fish_name = request.GET.get('fish_name', '')
+    base_name = request.GET.get('base_name', '')
+    location_name = request.GET.get('location_name', '')
+
+    from django.db.models import Q
+
+    # Base queryset
+    queryset = FishLog.objects.all()
+
+    # Apply current filters to get relevant options
+    if fish_name:
+        queryset = queryset.filter(fish_name=fish_name)
+    if base_name:
+        queryset = queryset.filter(base_name=base_name)
+    if location_name:
+        queryset = queryset.filter(location_name=location_name)
+
+    # Get unique values for each field
+    data = {
+        'fish_names': list(queryset.values_list('fish_name', flat=True).distinct().order_by('fish_name')),
+        'base_names': list(queryset.values_list('base_name', flat=True).distinct().order_by('base_name')),
+        'location_names': list(queryset.values_list('location_name', flat=True).distinct().order_by('location_name')),
+    }
+
+    return JsonResponse(data)
+
+
+def get_all_options(request):
+    """API endpoint to get ALL possible filter options (for initial load)"""
+    data = {
+        'all_fish_names': list(FishLog.objects.values_list('fish_name', flat=True).distinct().order_by('fish_name')),
+        'all_base_names': list(FishLog.objects.values_list('base_name', flat=True).distinct().order_by('base_name')),
+        'all_location_names': list(
+            FishLog.objects.values_list('location_name', flat=True).distinct().order_by('location_name')),
+    }
+
+    return JsonResponse(data)
