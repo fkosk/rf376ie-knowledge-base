@@ -104,12 +104,9 @@ def fish_search(request):
                     if fish_image_url and 'installsoft' in fish_image_url:
                         is_trophy = True
 
-    field_names_ru = get_field_verbose_names()
-
     context = {
         'fish': fish,
         'error_message': error_message,
-        'field_names_ru': field_names_ru,
         'fish_image_url': fish_image_url,
         'is_trophy': is_trophy,
         'search_name': request.GET.get('name', ''),

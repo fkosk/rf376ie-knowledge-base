@@ -281,56 +281,56 @@
                     <h3>Основная информация</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'min_weight' }}</label>
+                            <label>Мин. вес - Макс. вес</label>
                             <div class="value">{{ fish.min_weight }} - {{ fish.max_weight }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'filter' }}</label>
+                            <label>Фильтр</label>
                             <div class="value">{{ fish.filter }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'rating' }}</label>
+                            <label>Рейтинг</label>
                             <div class="value">{{ fish.rating }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'bite_strength' }}</label>
+                            <label>Сила поклевки</label>
                             <div class="value">{{ fish.bite_strength }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'price' }}</label>
+                            <label>Цена</label>
                             <div class="value">{{ fish.price }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'rate' }}</label>
+                            <label>Курс</label>
                             <div class="value">{{ fish.rate }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'valuable_weight' }}</label>
+                            <label>Ценный вес</label>
                             <div class="value">{{ fish.valuable_weight }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'experience' }}</label>
+                            <label>Опыт</label>
                             <div class="value">{{ fish.experience }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'experience_rate' }}</label>
+                            <label>Коэффициент опыта</label>
                             <div class="value">{{ fish.experience_rate }}</div>
                         </div>
                         {% if fish.biting_direction %}
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'biting_direction' }}</label>
+                            <label>Направление поклевки</label>
                             <div class="value">{{ fish.biting_direction|join:", " }}</div>
                         </div>
                         {% endif %}
                         {% if fish.chum_base %}
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'chum_base' }}</label>
+                            <label>Основа прикормки</label>
                             <div class="value">{{ fish.chum_base|join:", " }}</div>
                         </div>
                         {% endif %}
                         {% if fish.chum_aromatizer %}
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'chum_aromatizer' }}</label>
+                            <label>Ароматизатор прикормки</label>
                             <div class="value">{{ fish.chum_aromatizer|join:", " }}</div>
                         </div>
                         {% endif %}
@@ -341,7 +341,7 @@
                     <h3>Глубина и распределение</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <label>Глубина (мал./сред./круп.)</label>
+                            <label>Мин. глубина (мал./сред./круп.)</label>
                             <div class="value">{{ fish.min_depth_small }} / {{ fish.min_depth_medium }} / {{ fish.min_depth_large }}</div>
                         </div>
                         <div class="info-item">
@@ -363,19 +363,19 @@
                     <h3>Характеристики по размеру</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'endurance_small' }} / {{ field_names_ru|get_item:'endurance_medium' }} / {{ field_names_ru|get_item:'endurance_large' }}</label>
+                            <label>Выносливость (мал./сред./круп.)</label>
                             <div class="value">{{ fish.endurance_small }} / {{ fish.endurance_medium }} / {{ fish.endurance_large }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'accuracy_small' }} / {{ field_names_ru|get_item:'accuracy_medium' }} / {{ field_names_ru|get_item:'accuracy_large' }}</label>
+                            <label>Аккуратность (мал./сред./круп.)</label>
                             <div class="value">{{ fish.accuracy_small }} / {{ fish.accuracy_medium }} / {{ fish.accuracy_large }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'day_activity_small' }} / {{ field_names_ru|get_item:'day_activity_medium' }} / {{ field_names_ru|get_item:'day_activity_large' }}</label>
+                            <label>Дневная активность (мал./сред./круп.)</label>
                             <div class="value">{{ fish.day_activity_small }} / {{ fish.day_activity_medium }} / {{ fish.day_activity_large }}</div>
                         </div>
                         <div class="info-item">
-                            <label>{{ field_names_ru|get_item:'night_activity_small' }} / {{ field_names_ru|get_item:'night_activity_medium' }} / {{ field_names_ru|get_item:'night_activity_large' }}</label>
+                            <label>Ночная активность (мал./сред./круп.)</label>
                             <div class="value">{{ fish.night_activity_small }} / {{ fish.night_activity_medium }} / {{ fish.night_activity_large }}</div>
                         </div>
                     </div>
@@ -387,7 +387,7 @@
                     <div class="info-grid">
                         {% if fish.lures_small %}
                         <div class="info-item full-width">
-                            <label>{{ field_names_ru|get_item:'lures_small' }}</label>
+                            <label>Наживки (маленькая)</label>
                             <div class="value">
                                 {% for lure, value in fish.lures_small.items %}
                                     {{ lure }}: {{ value }}{% if not forloop.last %}, {% endif %}
@@ -397,7 +397,7 @@
                         {% endif %}
                         {% if fish.lures_medium %}
                         <div class="info-item full-width">
-                            <label>{{ field_names_ru|get_item:'lures_medium' }}</label>
+                            <label>Наживки (средняя)</label>
                             <div class="value">
                                 {% for lure, value in fish.lures_medium.items %}
                                     {{ lure }}: {{ value }}{% if not forloop.last %}, {% endif %}
@@ -407,7 +407,7 @@
                         {% endif %}
                         {% if fish.lures_large %}
                         <div class="info-item full-width">
-                            <label>{{ field_names_ru|get_item:'lures_large' }}</label>
+                            <label>Наживки (крупная)</label>
                             <div class="value">
                                 {% for lure, value in fish.lures_large.items %}
                                     {{ lure }}: {{ value }}{% if not forloop.last %}, {% endif %}
