@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Fish
+from .models import Fish, FishLog
 import json
 import os
+from .import_fishlog import import_fish_log
 
 def get_fish_image_url(fish_id):
     """
@@ -125,3 +126,28 @@ def get_fish_data(request):
         'fish_data': fish_data,
         'field_names_ru': get_field_verbose_names()
     })
+
+def import_fishlog(request):
+    success_message = None
+    error_message = None
+
+    if request.method == 'POST':
+        filepath = request.POST.get('filepath')
+
+        if filepath:
+            try:
+                import_fish_log(filepath)
+                success_message = "Файл успешно импортирован!"
+            except FileNotFoundError:
+                error_message = "Файл не найден. Проверьте путь."
+            except Exception as e:
+                error_message = f"Ошибка: {str(e)}"
+        else:
+            error_message = "Пожалуйста, укажите путь к файлу"
+
+    context = {
+        'success_message': success_message,
+        'error_message': error_message,
+    }
+
+    return render(request, 'fish_list/fishlog_importer.html', context)

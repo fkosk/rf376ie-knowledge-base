@@ -60,3 +60,13 @@ class Fish(models.Model):
 
     def __str__(self):
         return self.name
+
+class FishLog(models.Model):
+    fish_name = models.CharField(max_length=255)
+    fish_weight = models.IntegerField()
+    bait_name = models.CharField(max_length=255)
+    base_name = models.CharField(max_length=255)
+    location_name = models.CharField(max_length=255)
+    fish_id = models.ForeignKey(Fish, to_field='id', on_delete=models.CASCADE)
+    time = models.CharField(max_length=255)
+    depth = models.IntegerField()

@@ -1,7 +1,7 @@
-from rf37ie_knowledge_base.fishlog_importer.models import FishLog
+from .models import FishLog
 
 def import_fish_log(filepath):
-    with filepath.open() as file:
+    with open(filepath, 'r') as file:
         for line in file:
             split_line = line.strip().split(":")
             fish_log = FishLog(
