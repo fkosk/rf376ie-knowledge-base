@@ -294,24 +294,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for f in fish %}
+                    {% for f in fish_data %}
                     <tr>
                         {% for field in fields %}
-                        <td class="column-{{ field }}">
-                            {% if field == 'biting_direction' or field == 'chum_base' or field == 'chum_aromatizer' %}
-                                {{ f|get_attr:field|join:", " }}
-                            {% elif field == 'lures_small' or field == 'lures_medium' or field == 'lures_large' %}
-                                {% with lures=f|get_attr:field %}
-                                    {% if lures %}
-                                        {% for key, value in lures.items %}
-                                            {{ key }}: {{ value }}{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {{ f|get_attr:field }}
-                            {% endif %}
-                        </td>
+                        <td class="column-{{ field }}">{{ f|get_item:field }}</td>
                         {% endfor %}
                     </tr>
                     {% empty %}

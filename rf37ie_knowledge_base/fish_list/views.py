@@ -41,14 +41,26 @@ def get_field_verbose_names():
 
 def fish_list(request):
     """Main view displaying all fish in a table"""
-    fish = Fish.objects.all()
+    fish = Fish.objects.all().values()
     fields = [field.name for field in Fish._meta.fields]
-    field_names_ru = get_field_verbose_names()
+
+    fish_data = []
+    for f in fish:
+        processed = {}
+        for field_name, value in f.items():
+            if isinstance(value, list):
+                processed[field_name] = ', '.join(str(v) for v in value)
+            elif isinstance(value, dict):
+                parts = [f"{k}: {v}" for k, v in value.items()]
+                processed[field_name] = ', '.join(parts)
+            else:
+                processed[field_name] = value if value is not None else ''
+        fish_data.append(processed)
 
     context = {
-        'fish': fish,
+        'fish_data': fish_data,
         'fields': fields,
-        'field_names_ru': field_names_ru,
+        'field_names_ru': {field.name: field.verbose_name for field in Fish._meta.fields},
     }
     return render(request, 'fish_list/fish_list.html', context)
 
@@ -196,7 +208,7 @@ def get_all_fishlogs(request):
     paginator = Paginator(fishlogs, per_page)
     page_obj = paginator.get_page(page)
 
-    # Pre-load all relevant fish data into a dictionary for fast lookup
+    # Preload all relevant fish data into a dictionary for fast lookup
     fish_ids = set(log.fish_id for log in page_obj)
     fish_data = {}
     for fish in Fish.objects.filter(id__in=fish_ids):
