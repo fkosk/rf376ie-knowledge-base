@@ -196,6 +196,16 @@ def get_all_fishlogs(request):
     paginator = Paginator(fishlogs, per_page)
     page_obj = paginator.get_page(page)
 
+    # Pre-load all relevant fish data into a dictionary for fast lookup
+    fish_ids = set(log.fish_id for log in page_obj)
+    fish_data = {}
+    for fish in Fish.objects.filter(id__in=fish_ids):
+        is_trophy = 'installsoft' in fish.id.lower()
+        fish_data[fish.id] = {
+            'valuable_weight': fish.valuable_weight,
+            'is_trophy': is_trophy,
+        }
+
     fishlog_data = []
     for f in page_obj:
         fishlog_dict = {}
@@ -206,6 +216,16 @@ def get_all_fishlogs(request):
             elif isinstance(value, dict):
                 value = json.dumps(value, ensure_ascii=False)
             fishlog_dict[field.name] = value
+
+        # Add fish info for styling
+        fish_info = fish_data.get(f.fish_id)
+        if fish_info:
+            fishlog_dict['valuable_weight'] = fish_info['valuable_weight']
+            fishlog_dict['is_trophy'] = fish_info['is_trophy']
+        else:
+            fishlog_dict['valuable_weight'] = 0
+            fishlog_dict['is_trophy'] = False
+
         fishlog_data.append(fishlog_dict)
 
     return JsonResponse({

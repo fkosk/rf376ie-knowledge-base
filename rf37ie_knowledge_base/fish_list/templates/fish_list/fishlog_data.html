@@ -298,6 +298,40 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
         }
+
+        .row-trophy {
+            color: #28a745 !important;
+            font-weight: 600;
+        }
+
+        .row-valuable {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+
+        .row-regular {
+            color: #333;
+        }
+
+        .row-trophy td, .row-valuable td, .row-regular td {
+            color: inherit;
+        }
+
+        tr.row-trophy:hover {
+            background-color: #d4edda !important;
+        }
+
+        tr.row-valuable:hover {
+            background-color: #f8d7da !important;
+        }
+
+        tr.row-trophy:nth-child(even) {
+            background-color: #e8f5e9;
+        }
+
+        tr.row-valuable:nth-child(even) {
+            background-color: #fdf2f2;
+        }
     </style>
 </head>
 <body>
@@ -517,17 +551,31 @@
                 return;
             }
 
-            tbody.innerHTML = data.map(log => `
-                <tr>
-                    <td>${log.fish_name || '-'}</td>
-                    <td>${log.fish_weight || '-'}</td>
-                    <td>${log.bait_name || '-'}</td>
-                    <td>${log.base_name || '-'}</td>
-                    <td>${log.location_name || '-'}</td>
-                    <td>${log.time || '-'}</td>
-                    <td>${log.depth || '-'}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = data.map(log => {
+                // Determine row class based on fish value
+                let rowClass = 'row-regular';
+                let trophyIcon = '';
+
+                if (log.is_trophy) {
+                    rowClass = 'row-trophy';
+                    trophyIcon = ' 🏆';
+                } else if (log.fish_weight > log.valuable_weight) {
+                    rowClass = 'row-valuable';
+                    trophyIcon = ' 💎';
+                }
+
+                return `
+                    <tr class="${rowClass}">
+                        <td>${log.fish_name || '-'}${trophyIcon}</td>
+                        <td>${log.fish_weight || '-'}</td>
+                        <td>${log.bait_name || '-'}</td>
+                        <td>${log.base_name || '-'}</td>
+                        <td>${log.location_name || '-'}</td>
+                        <td>${log.time || '-'}</td>
+                        <td>${log.depth || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function renderPagination(data) {
