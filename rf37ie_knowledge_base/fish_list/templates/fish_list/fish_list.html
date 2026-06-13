@@ -230,6 +230,26 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
         }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .sortable:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%) !important;
+        }
+
+        .sort-icon {
+            margin-left: 5px;
+            font-size: 11px;
+            opacity: 0.5;
+        }
+
+        .sort-icon.active {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -267,7 +287,7 @@
                     <tr>
                         {% for field in fields %}
                         <th class="column-{{ field }}" data-field="{{ field }}">
-                            {{ field_names_ru|get_item:field }}
+                            {{ field_names_ru|get_item:field }}<span class="sort-icon"> ↕</span>
                         </th>
                         {% endfor %}
                     </tr>
@@ -308,12 +328,23 @@
     <script>
         // Store column visibility state
         let columnStates = {};
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
 
         // Initialize column states
         document.addEventListener('DOMContentLoaded', function() {
             const checkboxes = document.querySelectorAll('.column-toggle input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 columnStates[checkbox.value] = checkbox.checked;
+            });
+
+            // Add click handlers to all headers
+            const headers = document.querySelectorAll('th');
+            headers.forEach(header => {
+                header.classList.add('sortable');
+                header.addEventListener('click', function() {
+                    sortTable(this.dataset.field);
+                });
             });
         });
 
@@ -365,6 +396,76 @@
                 const cells = document.querySelectorAll(`td.column-${checkbox.value}`);
                 cells.forEach(cell => cell.classList.add('hidden-column'));
             });
+        }
+
+        function sortTable(columnName) {
+            const table = document.getElementById('fish-table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Remove "no data" row from sorting
+            const dataRows = rows.filter(row => row.querySelectorAll('td').length > 1);
+            if (dataRows.length === 0) return;
+
+            // Toggle sort direction if same column
+            if (currentSortColumn === columnName) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = columnName;
+                currentSortDirection = 'asc';
+            }
+
+            // Update sort icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.classList.remove('active');
+                icon.textContent = ' ↕';
+            });
+
+            const currentHeader = document.querySelector(`th[data-field="${columnName}"]`);
+            const sortIcon = currentHeader.querySelector('.sort-icon');
+            if (!sortIcon) {
+                const icon = document.createElement('span');
+                icon.className = 'sort-icon active';
+                currentHeader.appendChild(icon);
+            } else {
+                sortIcon.classList.add('active');
+            }
+
+            // Get column index
+            const headers = Array.from(table.querySelectorAll('th'));
+            const columnIndex = headers.findIndex(th => th.dataset.field === columnName);
+
+            if (columnIndex === -1) return;
+
+            // Sort rows
+            dataRows.sort((a, b) => {
+                const aValue = a.querySelectorAll('td')[columnIndex]?.textContent.trim() || '';
+                const bValue = b.querySelectorAll('td')[columnIndex]?.textContent.trim() || '';
+
+                // Try numeric comparison first
+                const aNum = parseFloat(aValue);
+                const bNum = parseFloat(bValue);
+
+                let comparison;
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    comparison = aNum - bNum;
+                } else {
+                    comparison = aValue.localeCompare(bValue, 'ru');
+                }
+
+                return currentSortDirection === 'asc' ? comparison : -comparison;
+            });
+
+            // Update sort icon
+            const icon = currentHeader.querySelector('.sort-icon') || document.createElement('span');
+            icon.className = 'sort-icon active';
+            icon.textContent = currentSortDirection === 'asc' ? ' ↑' : ' ↓';
+            if (!currentHeader.querySelector('.sort-icon')) {
+                currentHeader.appendChild(icon);
+            }
+
+            // Reorder rows
+            dataRows.forEach(row => tbody.appendChild(row));
         }
     </script>
 </body>
