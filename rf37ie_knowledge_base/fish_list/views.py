@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Fish, FishLog
+from .models import Fish
 import os
 from .import_fishlog import import_fish_log
 
