@@ -1,0 +1,99 @@
+arenicola : Пескожил
+blesna-circ_1 : Блёсны Circl, маленькие
+blesna-circ_2 : Блёсны Circl, средние
+blesna-circ_3 : Блёсны Circl, большие
+blesna-koleb_1 : Блёсны Vib, маленькие
+blesna-koleb_2 : Блёсны Vib, средние
+blesna-koleb_3 : Блёсны Vib, большие
+boil : Боил
+bublegam : Жвачка
+bug : Жук
+cancer : Раковая шейка
+caterpillar : Гусеница
+cheeze : Кусочки сыра
+chicken : Курица
+chickensm : Кусочки курицы
+coral : Коралл
+corn : Кукуруза
+crab : Крабовое мясо
+cuttlefish : Каракатица
+fish : Кусочки рыбы
+fly : Муха
+frog : Лягушка
+gammarus : Бокоплав
+gerkules : Геркулес
+glaz : Рыбий глаз
+golovastik : Головастик
+gorbusha : Кусочки рыбы
+goroh : Горох
+green : Зелень
+hironomida : Хирономида
+hleb : Хлеб
+hrjapa : Хряпа
+ikra : Икра
+kapusta : Капуста
+kartofan : Картофель
+kazara : Казара
+kembrik : Кембрик
+koroed : Личинка короеда
+kuznec : Кузнечик
+liver : Куриная печень
+lyuzerna : Люцерна
+makarony : Макароны
+makuha : Макуха
+manka : Манка
+meat : Кусочки мяса
+medved : Медведка
+mesidotea : Морской таракан
+mjakina : Мякина
+mollusk : Моллюск
+mork : Морковь
+motyl : Мотыль
+mouse : Мышь
+mur : Муравей
+musca_1 : Блёсны Musc, маленькие
+musca_2 : Блёсны Musc, средние
+musca_3 : Блёсны Musc, большие
+mussel : Мидия
+nereis : Нереис
+octopus : Осьминог
+okorok : Окорок
+opara : Опара
+oparysh : Опарыш
+perlovka : Перловка
+pilker_1 : Блёсны Pilk, маленькие
+pilker_2 : Блёсны Pilk, средние
+pilker_3 : Блёсны Pilk, большие
+piyavka : Пиявка
+plod : Плодожорка
+podenka : Поденка
+pomidory : Помидоры
+ring : Мясо
+rucheinik : Ручейник
+salat : Салат
+salo : Сало
+salokopch : Копчёное сало
+sambuka : Самбука
+scallop : Морской гребешок
+shrimp : Креветка
+sks : Свернувшаяся кровь скота
+slizn : Слизнь
+snail : Улитка
+spider : Паук
+squid : Кальмар
+ssalnik : Сальник
+sverchok : Сверчок
+testo : Тесто
+tigr : Тигровые орешки
+twister_1 : Блёсны Twis, маленькие
+twister_2 : Блёсны Twis, средние
+twister_3 : Блёсны Twis, большие
+urchin : Морской ёж
+vobler_1 : Блёсны Vob, маленькие
+vobler_2 : Блёсны Vob, средние
+vobler_3 : Блёсны Vob, большие
+vypolz : Выползок
+worm : Червь
+yagoda : Ягоды
+zhivec : Живец
+zhivets : Малек
