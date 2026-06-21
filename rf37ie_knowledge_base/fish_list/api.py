@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from .models import Fish, FishLog
+from .models import Fish, FishLog, Bait
 
 def get_field_verbose_names():
     """
@@ -14,7 +14,7 @@ def get_field_verbose_names():
         field_names[field.name] = field.verbose_name if field.verbose_name else field.name
     return field_names
 
-def get_fish_data(request):
+def get_fish_data():
     """API endpoint to return fish data as JSON"""
     fish = Fish.objects.all()
     fish_data = []
@@ -123,8 +123,6 @@ def get_filter_options(request):
     base_name = request.GET.get('base_name', '')
     location_name = request.GET.get('location_name', '')
 
-    from django.db.models import Q
-
     # Base queryset
     queryset = FishLog.objects.all()
 
@@ -145,7 +143,7 @@ def get_filter_options(request):
 
     return JsonResponse(data)
 
-def get_all_options(request):
+def get_all_options():
     """API endpoint to get ALL possible filter options (for initial load)"""
     data = {
         'all_fish_names': list(FishLog.objects.values_list('fish_name', flat=True).distinct().order_by('fish_name')),
@@ -213,3 +211,87 @@ def get_bait_statistics(request):
         })
 
     return JsonResponse({'statistics': statistics})
+
+def find_average_bait_efficiency(request):
+    """
+    Calculate average bait efficiency across multiple fish.
+    """
+    fish_ids_str = request.GET.get('fish_ids', '')
+    sizes_str = request.GET.get('sizes', '')
+
+    if not fish_ids_str:
+        return JsonResponse({'Ошибка': 'Выберите ID хотя бы одной рыбы'}, status=400)
+
+    # Parse fish IDs
+    fish_ids = [fid.strip() for fid in fish_ids_str.split(',') if fid.strip()]
+
+    # Parse sizes - must match fish_ids count
+    if sizes_str:
+        sizes = [int(s.strip()) for s in sizes_str.split(',') if s.strip()]
+    else:
+        sizes = [3] * len(fish_ids)
+
+    if len(sizes) != len(fish_ids):
+        return JsonResponse({
+            'Ошибка': f'Видов рыбы {len(fish_ids)}, а размеров - {len(sizes)}. Их количество должно совпадать'
+        }, status=400)
+
+    size_to_field = {
+        1: 'lures_small',
+        2: 'lures_medium',
+        3: 'lures_large',
+    }
+
+    # Get fish objects
+    fish_objects = Fish.objects.filter(id__in=fish_ids)
+    fish_map = {fish.id: fish for fish in fish_objects}
+
+    total_fish = len(fish_ids)
+
+    # Collect baits and scores
+    bait_totals = {}
+    bait_fish_count = {}
+
+    for fish_id, size in zip(fish_ids, sizes):
+        fish = fish_map.get(fish_id)
+        if not fish:
+            continue
+
+        field_name = size_to_field.get(size)
+        if not field_name:
+            continue
+
+        lures = getattr(fish, field_name, {})
+        if not lures:
+            continue
+
+        for bait_name, score in lures.items():
+            if bait_name not in bait_totals:
+                bait_totals[bait_name] = 0
+                bait_fish_count[bait_name] = 0
+
+            bait_totals[bait_name] += score
+            bait_fish_count[bait_name] += 1
+
+    # Calculate average - divide by total fish
+    bait_spread = []
+    for bait_name in bait_totals:
+        avg_score = bait_totals[bait_name] / total_fish
+        bait_spread.append({
+            'bait_name': bait_name,
+            'average_score': round(avg_score, 2),
+            'total_score': bait_totals[bait_name],
+            'fish_count': bait_fish_count[bait_name],
+            'total_fish': total_fish,
+        })
+
+    bait_spread.sort(key=lambda x: x['average_score'], reverse=True)
+
+    for bait in bait_spread:
+        try:
+            bait_obj = Bait.objects.get(original_name=bait['bait_name'])
+            bait['russian_name'] = bait_obj.russian_name
+        except Bait.DoesNotExist:
+            bait['russian_name'] = bait['bait_name']
+
+    return JsonResponse({'bait_spread': bait_spread})

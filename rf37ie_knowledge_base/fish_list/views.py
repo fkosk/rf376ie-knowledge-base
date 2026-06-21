@@ -130,3 +130,7 @@ def import_fishlog(request):
 def fishlog_data(request):
     """View to display all fishlogs in a table"""
     return render(request, 'fish_list/fishlog_data.html')
+
+def bait_efficiency(request):
+    """View for finding best baits across multiple fish"""
+    return render(request, 'fish_list/bait_efficiency.html')
