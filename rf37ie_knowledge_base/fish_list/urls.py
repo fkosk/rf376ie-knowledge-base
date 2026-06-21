@@ -15,4 +15,5 @@ urlpatterns = [
     path('api/all-options/', api.get_all_options, name='all_options_api'),
     path('api/bait-statistics/', api.get_bait_statistics, name='bait_statistics_api'),
     path('api/bait-efficiency/', api.find_average_bait_efficiency, name='bait_efficiency_api'),
+    path('api/fish-list/', api.get_fish_list, name='fish_list_api'),
 ]

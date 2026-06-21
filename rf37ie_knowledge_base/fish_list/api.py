@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from .models import Fish, FishLog, Bait
 
-def get_field_verbose_names():
+def get_field_verbose_names(request):
     """
     Get verbose names for all fields in the Fish model.
     Returns a dictionary mapping field names to their verbose names.
@@ -14,7 +14,7 @@ def get_field_verbose_names():
         field_names[field.name] = field.verbose_name if field.verbose_name else field.name
     return field_names
 
-def get_fish_data():
+def get_fish_data(request):
     """API endpoint to return fish data as JSON"""
     fish = Fish.objects.all()
     fish_data = []
@@ -32,7 +32,7 @@ def get_fish_data():
 
     return JsonResponse({
         'fish_data': fish_data,
-        'field_names_ru': get_field_verbose_names()
+        'field_names_ru': get_field_verbose_names(request)
     })
 
 def get_all_fishlogs(request):
@@ -143,7 +143,7 @@ def get_filter_options(request):
 
     return JsonResponse(data)
 
-def get_all_options():
+def get_all_options(request):
     """API endpoint to get ALL possible filter options (for initial load)"""
     data = {
         'all_fish_names': list(FishLog.objects.values_list('fish_name', flat=True).distinct().order_by('fish_name')),
@@ -289,9 +289,36 @@ def find_average_bait_efficiency(request):
 
     for bait in bait_spread:
         try:
-            bait_obj = Bait.objects.get(original_name=bait['bait_name'])
+            bait_obj = Bait.objects.get(dev_name=bait['bait_name'])
             bait['russian_name'] = bait_obj.russian_name
         except Bait.DoesNotExist:
             bait['russian_name'] = bait['bait_name']
 
     return JsonResponse({'bait_spread': bait_spread})
+
+def get_fish_list(request):
+    """API endpoint to return all fish names with their variants (regular, trophy, albino)"""
+    fish_list = []
+
+    for fish in Fish.objects.all():
+        fish_id = fish.id
+
+        # Determine variant
+        if 'installsoft' in fish_id.lower():
+            variant = 'Трофей'
+        elif 'A' in fish_id or 'А' in fish_id:  # Latin A or Cyrillic А
+            variant = 'Альбинос'
+        else:
+            variant = 'Обычный'
+
+        fish_list.append({
+            'id': fish.id,
+            'name': fish.name,
+            'display_name': f"{fish.name} - {variant}" if variant != 'Обычный' else fish.name,
+            'variant': variant,
+        })
+
+    # Sort by name then variant
+    fish_list.sort(key=lambda x: (x['name'], x['variant']))
+
+    return JsonResponse({'fish_list': fish_list})

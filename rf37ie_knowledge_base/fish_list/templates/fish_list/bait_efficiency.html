@@ -100,7 +100,7 @@
             font-size: 14px;
             background: white;
             cursor: pointer;
-            min-width: 200px;
+            min-width: 250px;
         }
 
         .selector-group select:focus {
@@ -317,15 +317,15 @@
     </div>
 
     <script>
-        let allFish = [];
-        let selectedFish = [];  // [{id, name, size}]
+        let allFishData = [];
+        let selectedFish = [];
 
         async function loadFishList() {
             try {
-                const response = await fetch('/api/all-options/');
+                const response = await fetch('/api/fish-list/');
                 const data = await response.json();
 
-                allFish = data.all_fish_names;
+                allFishData = data.fish_list;
                 populateFishDropdown();
             } catch (error) {
                 console.error('Error loading fish:', error);
@@ -336,41 +336,43 @@
             const select = document.getElementById('fish-select');
             select.innerHTML = '<option value="">Выберите рыбу...</option>';
 
-            allFish.forEach(fishName => {
+            allFishData.forEach(fish => {
                 const opt = document.createElement('option');
-                opt.value = fishName;
-                opt.textContent = fishName;
+                opt.value = fish.id;
+                opt.textContent = fish.display_name;
                 select.appendChild(opt);
             });
         }
 
         function addFish() {
             const select = document.getElementById('fish-select');
-            const fishName = select.value;
 
-            if (!fishName) return;
+            if (!select.value) return;
 
-            // Check if already added with same size
-            const existing = selectedFish.find(f => f.name === fishName && f.size === 1);
+            const fishData = allFishData.find(f => f.id === select.value);
+
+            if (!fishData) return;
 
             selectedFish.push({
-                id: Date.now(),  // Unique ID for removal
-                name: fishName,
-                size: 1,  // Default: Маленькая
+                uniqueId: Date.now(),
+                fishId: fishData.id,
+                fishName: fishData.name,
+                displayName: fishData.display_name,
+                size: 1,
             });
 
             renderSelectedFish();
             updateCalculateButton();
         }
 
-        function removeFish(id) {
-            selectedFish = selectedFish.filter(f => f.id !== id);
+        function removeFish(uniqueId) {
+            selectedFish = selectedFish.filter(f => f.uniqueId !== uniqueId);
             renderSelectedFish();
             updateCalculateButton();
         }
 
-        function changeSize(id, newSize) {
-            const fish = selectedFish.find(f => f.id === id);
+        function changeSize(uniqueId, newSize) {
+            const fish = selectedFish.find(f => f.uniqueId === uniqueId);
             if (fish) {
                 fish.size = parseInt(newSize);
             }
@@ -386,13 +388,13 @@
 
             container.innerHTML = selectedFish.map(fish => `
                 <div class="fish-tag">
-                    <span class="fish-name">🐟 ${fish.name}</span>
-                    <select onchange="changeSize(${fish.id}, this.value)">
+                    <span class="fish-name">🐟 ${fish.displayName}</span>
+                    <select onchange="changeSize(${fish.uniqueId}, this.value)">
                         <option value="1" ${fish.size === 1 ? 'selected' : ''}>Маленькая</option>
                         <option value="2" ${fish.size === 2 ? 'selected' : ''}>Средняя</option>
                         <option value="3" ${fish.size === 3 ? 'selected' : ''}>Большая</option>
                     </select>
-                    <button class="btn-remove" onclick="removeFish(${fish.id})" title="Удалить">✕</button>
+                    <button class="btn-remove" onclick="removeFish(${fish.uniqueId})" title="Удалить">✕</button>
                 </div>
             `).join('');
         }
@@ -411,7 +413,7 @@
             resultsCard.style.display = 'block';
             resultsBody.innerHTML = '<div class="loading">Вычисляем...</div>';
 
-            const fishIds = selectedFish.map(f => f.name);
+            const fishIds = selectedFish.map(f => f.fishId);
             const sizes = selectedFish.map(f => f.size);
 
             try {
