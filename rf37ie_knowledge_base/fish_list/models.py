@@ -70,3 +70,15 @@ class FishLog(models.Model):
     fish_id = models.CharField(max_length=255, verbose_name='ID рыбы')
     time = models.CharField(max_length=255, verbose_name='Время')
     depth = models.IntegerField(verbose_name='Глубина')
+
+
+class Bait(models.Model):
+    dev_name = models.CharField(max_length=255, unique=True, verbose_name='Название в коде игры')
+    russian_name = models.CharField(max_length=255, verbose_name='Русское название')
+
+    class Meta:
+        verbose_name = 'Наживка'
+        ordering = ['russian_name']
+
+    def __str__(self):
+        return f"{self.russian_name} ({self.dev_name})"
