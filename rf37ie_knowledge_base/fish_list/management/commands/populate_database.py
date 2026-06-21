@@ -14,7 +14,7 @@ class Command(BaseCommand):
     help = 'Populate database with fish data from fish_data_v3.json'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('Starting database population...')
+        self.stdout.write('Пополняем базу данных рыбами...')
 
         try:
             with open('fish_data_v3.json', 'r', encoding='utf-8') as f:
@@ -80,12 +80,12 @@ class Command(BaseCommand):
                     updated_count += 1
 
             self.stdout.write(self.style.SUCCESS(
-                f'Success! Created: {created_count}, Updated: {updated_count}'
+                f'Успешно! Записей создано: {created_count}, Обновлено: {updated_count}'
             ))
 
         except FileNotFoundError:
             self.stdout.write(self.style.ERROR(
-                'Error: fish_data_v3.json not found! Make sure the file is in the same directory as manage.py'
+                'Ошибка: fish_data_v3.json не найден! Убедитесь, что файл находится в одной директории с manage.py'
             ))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error: {str(e)}'))
