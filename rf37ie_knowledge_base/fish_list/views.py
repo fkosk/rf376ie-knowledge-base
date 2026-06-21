@@ -3,6 +3,10 @@ from .models import Fish
 import os
 from .import_fishlog import import_fish_log
 
+def main_page(request):
+    """Main landing page"""
+    return render(request, 'fish_list/main_page.html')
+
 def get_fish_image_url(fish_id):
     """
     Find the correct image for a fish.
