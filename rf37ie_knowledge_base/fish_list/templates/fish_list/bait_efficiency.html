@@ -1,0 +1,478 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск лучших наживок</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .nav-link {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+        }
+
+        .content-card h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .selector-row {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .selector-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .selector-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .selector-group select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .selector-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-add {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+        }
+
+        .selected-fish-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .fish-tag {
+            background: #f0f0ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fish-tag .fish-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .fish-tag select {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .fish-tag .btn-remove {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .fish-tag .btn-remove:hover {
+            color: #a71d2a;
+        }
+
+        .btn-calculate {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-calculate:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .btn-calculate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .results-card h2 {
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .results-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .results-table tr:hover {
+            background-color: #f0f0ff;
+        }
+
+        .results-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .results-table tr:nth-child(even):hover {
+            background-color: #f0f0ff;
+        }
+
+        .score-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            min-width: 2px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎣 Поиск лучших наживок</h1>
+            <div style="display: flex; gap: 12px;">
+                <a href="{% url 'fish_list:fish_list' %}" class="nav-link">🐟 Список рыб</a>
+                <a href="{% url 'fish_list:fishlog_data' %}" class="nav-link">📋 Мои фишлоги</a>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>Выберите рыбу и размер</h2>
+
+            <div class="selector-row">
+                <div class="selector-group">
+                    <label for="fish-select">🐟 Рыба</label>
+                    <select id="fish-select">
+                        <option value="">Выберите рыбу...</option>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="addFish()">➕ Добавить</button>
+            </div>
+
+            <div class="selected-fish-list" id="selected-fish"></div>
+
+            <button class="btn-calculate" id="btn-calculate" onclick="calculateEfficiency()" disabled>
+                📊 Рассчитать эффективность
+            </button>
+        </div>
+
+        <div class="results-card" id="results-card" style="display: none;">
+            <h2>📊 Результаты</h2>
+            <div id="results-body">
+                <div class="loading">Загрузка результатов...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allFish = [];
+        let selectedFish = [];  // [{id, name, size}]
+
+        async function loadFishList() {
+            try {
+                const response = await fetch('/api/all-options/');
+                const data = await response.json();
+
+                allFish = data.all_fish_names;
+                populateFishDropdown();
+            } catch (error) {
+                console.error('Error loading fish:', error);
+            }
+        }
+
+        function populateFishDropdown() {
+            const select = document.getElementById('fish-select');
+            select.innerHTML = '<option value="">Выберите рыбу...</option>';
+
+            allFish.forEach(fishName => {
+                const opt = document.createElement('option');
+                opt.value = fishName;
+                opt.textContent = fishName;
+                select.appendChild(opt);
+            });
+        }
+
+        function addFish() {
+            const select = document.getElementById('fish-select');
+            const fishName = select.value;
+
+            if (!fishName) return;
+
+            // Check if already added with same size
+            const existing = selectedFish.find(f => f.name === fishName && f.size === 1);
+
+            selectedFish.push({
+                id: Date.now(),  // Unique ID for removal
+                name: fishName,
+                size: 1,  // Default: Маленькая
+            });
+
+            renderSelectedFish();
+            updateCalculateButton();
+        }
+
+        function removeFish(id) {
+            selectedFish = selectedFish.filter(f => f.id !== id);
+            renderSelectedFish();
+            updateCalculateButton();
+        }
+
+        function changeSize(id, newSize) {
+            const fish = selectedFish.find(f => f.id === id);
+            if (fish) {
+                fish.size = parseInt(newSize);
+            }
+        }
+
+        function renderSelectedFish() {
+            const container = document.getElementById('selected-fish');
+
+            if (selectedFish.length === 0) {
+                container.innerHTML = '<div class="empty-state">Добавьте рыбу из списка выше</div>';
+                return;
+            }
+
+            container.innerHTML = selectedFish.map(fish => `
+                <div class="fish-tag">
+                    <span class="fish-name">🐟 ${fish.name}</span>
+                    <select onchange="changeSize(${fish.id}, this.value)">
+                        <option value="1" ${fish.size === 1 ? 'selected' : ''}>Маленькая</option>
+                        <option value="2" ${fish.size === 2 ? 'selected' : ''}>Средняя</option>
+                        <option value="3" ${fish.size === 3 ? 'selected' : ''}>Большая</option>
+                    </select>
+                    <button class="btn-remove" onclick="removeFish(${fish.id})" title="Удалить">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function updateCalculateButton() {
+            const btn = document.getElementById('btn-calculate');
+            btn.disabled = selectedFish.length === 0;
+        }
+
+        async function calculateEfficiency() {
+            if (selectedFish.length === 0) return;
+
+            const resultsCard = document.getElementById('results-card');
+            const resultsBody = document.getElementById('results-body');
+
+            resultsCard.style.display = 'block';
+            resultsBody.innerHTML = '<div class="loading">Вычисляем...</div>';
+
+            const fishIds = selectedFish.map(f => f.name);
+            const sizes = selectedFish.map(f => f.size);
+
+            try {
+                const params = new URLSearchParams({
+                    fish_ids: fishIds.join(','),
+                    sizes: sizes.join(','),
+                });
+
+                const response = await fetch(`/api/bait-efficiency/?${params.toString()}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultsBody.innerHTML = `<div class="empty-state">❌ ${data.error}</div>`;
+                    return;
+                }
+
+                renderResults(data.bait_spread);
+            } catch (error) {
+                resultsBody.innerHTML = '<div class="empty-state">❌ Ошибка вычисления</div>';
+            }
+        }
+
+        function renderResults(baitSpread) {
+            const resultsBody = document.getElementById('results-body');
+
+            if (baitSpread.length === 0) {
+                resultsBody.innerHTML = '<div class="empty-state">Нет данных о наживках</div>';
+                return;
+            }
+
+            const maxScore = baitSpread[0].average_score;
+
+            resultsBody.innerHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Наживка</th>
+                            <th>Эффективность</th>
+                            <th>Оценка</th>
+                            <th>Рыб с наживкой</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${baitSpread.map(bait => `
+                            <tr>
+                                <td><strong>${bait.russian_name || bait.bait_name}</strong></td>
+                                <td>
+                                    <div class="score-bar" style="width: ${(bait.average_score / maxScore * 100).toFixed(0)}%"></div>
+                                </td>
+                                <td>${bait.average_score}</td>
+                                <td>${bait.fish_count} / ${bait.total_fish}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFishList();
+        });
+    </script>
+</body>
+</html>
