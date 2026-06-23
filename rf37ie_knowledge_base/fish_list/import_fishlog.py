@@ -5,9 +5,9 @@ def import_fish_log(filepath):
     created_count = 0
     skipped_count = 0
 
-    print("Loading fish IDs...")
+    print("Загружаем ID рыб...")
     valid_fish_ids = set(Fish.objects.values_list('id', flat=True))
-    print(f"Loaded {len(valid_fish_ids)} fish IDs")
+    print(f"Загружено {len(valid_fish_ids)} ID")
 
     batch = []
     batch_size = 10000
@@ -41,7 +41,7 @@ def import_fish_log(filepath):
                     batch = []
 
                     if created_count % 100000 == 0:
-                        print(f"Imported {created_count} records...")
+                        print(f"Импортировано {created_count} записей...")
 
             except (IndexError, ValueError) as e:
                 skipped_count += 1
@@ -52,5 +52,5 @@ def import_fish_log(filepath):
             FishLog.objects.bulk_create(batch)
         created_count += len(batch)
 
-    print(f"Done! Created: {created_count}, Skipped: {skipped_count}")
+    print(f"Готово! Импортировано: {created_count}, Пропущено: {skipped_count}")
     return created_count, skipped_count
