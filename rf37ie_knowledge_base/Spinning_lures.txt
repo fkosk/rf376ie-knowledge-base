@@ -1,0 +1,96 @@
+Circl-5000:Blue Fox:blesna-circ:100:1:300:Нет:Circl-5000
+Circl-5055:Blue Fox:blesna-circ:100:1:370:Нет:Circl-5055
+Circl-5100:Mepps:blesna-circ:100:1:400:Нет:Circl-5100
+Circl-5103:Mepps:blesna-circ:100:1:310:Нет:Circl-5103
+Circl-5105:Mepps:blesna-circ:100:1:500:Нет:Circl-5105
+Circl-5106:Mepps:blesna-circ:100:1:320:Нет:Circl-5106
+Circl-5107:Mepps:blesna-circ:100:1:470:Нет:Circl-5107
+Circl-5108:Abu Garcia:blesna-circ:100:1:340:Нет:Circl-5108
+Circl-5109:Abu Garcia:blesna-circ:100:1:550:Нет:Circl-5109
+Circl-5110:Lukris:blesna-circ:100:1:290:Нет:Circl-5110
+Circl-5111:Lukris:blesna-circ:100:1:480:Нет:Circl-5111
+Circl-5112:Lukris:blesna-circ:100:1:300:Нет:Circl-5112
+Circl-5113:D.A.M.:blesna-circ:100:1:530:Нет:Circl-5113
+Circl-5114:D.A.M.:blesna-circ:100:1:300:Нет:Circl-5114
+Circl-5115:D.A.M.:blesna-circ:100:1:380:Нет:Circl-5115
+Circl-5116:Mepps:blesna-circ:100:1:640:Нет:Circl-5116
+Vib-6000:Flamingo:blesna-koleb:100:1:480:Нет:Vib-6000
+Vib-6002:Abu Garcia:blesna-koleb:100:1:320:Нет:Vib-6002
+Vib-6003:D.A.M.:blesna-koleb:100:1:380:Нет:Vib-6003
+Vib-6004:D.A.M.:blesna-koleb:100:1:300:Нет:Vib-6004
+Vib-6005:Flamingo:blesna-koleb:100:1:420:Нет:Vib-6005
+Vib-6006:Кuusamo:blesna-koleb:100:1:550:Нет:Vib-6006
+Vib-6007:Cormoran:blesna-koleb:100:1:660:Нет:Vib-6007
+Vib-6008:Duel:blesna-koleb:100:1:800:Нет:Vib-6008
+Vib-6009:Abu Garcia:blesna-koleb:100:1:660:Нет:Vib-6009
+Vib-6010:Кuusamo:blesna-koleb:100:1:540:Нет:Vib-6010
+Vib-6011:Blue Fox:blesna-koleb:100:1:600:Нет:Vib-6011
+Vib-6012:Flamingo:blesna-koleb:100:1:580:Нет:Vib-6012
+Vib-6013:Flamingo:blesna-koleb:100:1:540:Нет:Vib-6013
+Vib-6014:Blue Fox:blesna-koleb:100:1:660:Нет:Vib-6014
+Vib-6015:Flamingo:blesna-koleb:100:1:1000:Нет:Vib-6015
+Vib-6016:Mepps:blesna-koleb:100:1:640:Нет:Vib-6016
+Vob-3000:Rapala:vobler:100:1:2000:Нет:Vob-3000
+Vob-3001:Rapala:vobler:100:1:2800:Нет:Vob-3001
+Vob-3002:Rapala:vobler:100:1:3400:Нет:Vob-3002
+Vob-3003:Rapala:vobler:100:1:2600:Нет:Vob-3003
+Vob-3004:Alex:vobler:100:1:3500:Нет:Vob-3004
+Vob-3005:Alex:vobler:100:1:1800:Нет:Vob-3005
+Vob-3006:Halco:vobler:100:1:2500:Нет:Vob-3006
+Vob-3007:Halco:vobler:100:1:3900:Нет:Vob-3007
+Vob-3008:Halco:vobler:100:1:5200:Нет:Vob-3008
+Vob-3009:Tiemco:vobler:100:1:6000:Нет:Vob-3009
+Vob-3010:Tiemco:vobler:100:1:4000:Нет:Vob-3010
+Vob-3011:Tiemco:vobler:100:1:3600:Нет:Vob-3011
+Vob-3012:Duel:vobler:100:1:2440:Нет:Vob-3012
+Vob-3013:Duel:vobler:100:1:4300:Нет:Vob-3013
+Vob-3014:Duel:vobler:100:1:5200:Нет:Vob-3014
+Vob-3015:YO-ZURI:vobler:100:1:3300:Нет:Vob-3015
+Tvis-100:Cormoran:twister:100:1:200:Нет:Tvis-100
+Tvis-101:Cormoran:twister:100:1:250:Нет:Tvis-101
+Tvis-102:Cormoran:twister:100:1:300:Нет:Tvis-102
+Tvis-103:Berkley:twister:100:1:200:Нет:Tvis-103
+Tvis-104:Storm:twister:100:1:300:Нет:Tvis-104
+Tvis-105:Storm:twister:100:1:400:Нет:Tvis-105
+Tvis-106:Storm:twister:100:1:450:Нет:Tvis-106
+Tvis-107:Storm:twister:100:1:500:Нет:Tvis-107
+Tvis-108:Flamingo:twister:100:1:500:Нет:Tvis-108
+Tvis-119:Flamingo:twister:100:1:510:Нет:Tvis-119
+Pilk-7001:Wirek:pilker:100:1:3000:Нет:Pilk-7001
+Pilk-7002:ULAR:pilker:100:1:3600:Нет:Pilk-7002
+Pilk-7003:Mikado:pilker:100:1:2600:Нет:Pilk-7003
+Pilk-7004:Mikado:pilker:100:1:3800:Нет:Pilk-7004
+Pilk-7005:D.A.M.:pilker:100:1:4200:Нет:Pilk-7005
+Pilk-7006:Spinnex:pilker:100:1:2800:Нет:Pilk-7006
+Pilk-7007:ULAR:pilker:100:1:3200:Нет:Pilk-7007
+Pilk-7008:D.A.M.:pilker:100:1:4000:Нет:Pilk-7008
+Pilk-7009:Balzer:pilker:100:1:4050:Нет:Pilk-7009
+Pilk-7010:Balzer:pilker:100:1:5000:Нет:Pilk-7010
+Rigged:Berkley:twister:100:1:1200:Нет:Rigged
+Peeler Crab:Berkley:twister:100:1:1600:Нет:Peeler Crab
+Eel:Berkley:twister:100:1:1030:Нет:Eel
+Shrimps:Berkley:twister:100:1:1800:Нет:Shrimps
+Squidsoft:Berkley:twister:100:1:2000:Нет:Squidsoft
+Swimmer:Berkley:twister:100:1:2800:Нет:Swimmer
+Musca-200:Handmade:musca:100:1:340:Нет:Musca-200
+Musca-201:Handmade:musca:100:1:360:Нет:Musca-201
+Musca-202:Handmade:musca:100:1:370:Нет:Musca-202
+Musca-203:Handmade:musca:100:1:330:Нет:Musca-203
+Musca-204:Handmade:musca:100:1:400:Нет:Musca-204
+Musca-205:Handmade:musca:100:1:410:Нет:Musca-205
+Musca-206:Handmade:musca:100:1:380:Нет:Musca-206
+Musca-207:Handmade:musca:100:1:390:Нет:Musca-207
+Musca-208:Handmade:musca:100:1:350:Нет:Musca-208
+Musca-209:Handmade:musca:100:1:420:Нет:Musca-209
+Musca-210:Handmade:musca:100:1:430:Нет:Musca-210
+Musca-211:Handmade:musca:100:1:410:Нет:Musca-211
+Spinner-9001:Booyah:blesna-circ:100:1:2700:Нет:Spinner-9001
+Spinner-9002:Booyah:blesna-circ:100:1:2500:Нет:Spinner-9002
+Spinner-9003:Booyah:blesna-circ:100:1:2900:Нет:Spinner-9003
+Spinner-9004:Booyah:blesna-circ:100:1:3100:Нет:Spinner-9004
+Spinner-9005:Booyah:blesna-circ:100:1:2910:Нет:Spinner-9005
+Spinner-9006:Booyah:blesna-circ:100:1:4000:Нет:Spinner-9006
+Spinner-9007:Booyah:blesna-circ:100:1:4300:Нет:Spinner-9007
+Spinner-9008:Booyah:blesna-circ:100:1:4050:Нет:Spinner-9008
+Spinner-9009:Booyah:blesna-circ:100:1:4320:Нет:Spinner-9009
+MunkMous:Handmade:blesna-koleb:100:1:1640:Нет:MunkMousAgressor:Handmade:pilker:100:1:1000:Нет:AgressorBlackDiver:Handmade:vobler:100:1:1000:Нет:BlackDiverDeepRipper:Handmade:pilker:100:1:1000:Нет:DeepRipperFishHunter:Handmade:blesna-koleb:100:1:1000:Нет:FishHunterGlutton:Handmade:vobler:100:1:1000:Нет:GluttonGraveDigger:Handmade:blesna-circ:100:1:1000:Нет:GraveDiggerKillerfish:Handmade:vobler:100:1:1000:Нет:KillerfishRedDevil:Handmade:blesna-circ:100:1:1000:Нет:RedDevilResearcher:Handmade:musca:100:1:1000:Нет:ResearcherSharpHook:Handmade:musca:100:1:1000:Нет:SharpHookSniper:Handmade:twister:100:1:1000:Нет:SniperTerminator:Handmade:blesna-koleb:100:1:1000:Нет:TerminatorStalker:Handmade:blesna-koleb:100:1:1000:Нет:StalkerPhantom:Handmade:musca:100:1:1000:Нет:PhantomPathfinder:Handmade:vobler:100:1:1000:Нет:PathfinderGoldMiner:Handmade:vobler:100:1:1000:Нет:GoldMinerDevon:Handmade:blesna-circ:100:1:1000:Нет:Devon
