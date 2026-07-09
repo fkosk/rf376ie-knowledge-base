@@ -96,3 +96,27 @@ class Pref(models.Model):
 
     def __str__(self):
         return f"{self.base} - {self.fish_name} ({self.fish_id})"
+
+class SpinningLure(models.Model):
+    lure_name = models.CharField(max_length=255, unique=True, verbose_name='Блесна')
+    lure_type = models.CharField(max_length=255, verbose_name='Тип')
+
+    class Meta:
+        verbose_name = 'Тип блесны'
+        verbose_name_plural = 'Типы блёсен'
+        ordering = ['lure_type', 'lure_name']
+
+    def __str__(self):
+        return f"{self.lure_name} ({self.lure_type})"
+
+class Base(models.Model):
+    dev_name = models.CharField(max_length=255, unique=True, verbose_name='Название в коде игры')
+    russian_name = models.CharField(max_length=255, verbose_name='Русское название')
+
+    class Meta:
+        verbose_name = 'База'
+        verbose_name_plural = 'Базы'
+        ordering = ['russian_name']
+
+    def __str__(self):
+        return f"{self.russian_name} ({self.dev_name})"
