@@ -82,3 +82,17 @@ class Bait(models.Model):
 
     def __str__(self):
         return f"{self.russian_name} ({self.dev_name})"
+
+class Pref(models.Model):
+    base = models.CharField(max_length=255, verbose_name='База')
+    fish_id = models.CharField(max_length=255, verbose_name='ID рыбы')
+    fish_name = models.CharField(max_length=255, verbose_name='Название вида')
+    spinning_lures = models.JSONField(verbose_name='Блёсны')
+
+    class Meta:
+        verbose_name = 'Предпочтение блёсен'
+        verbose_name_plural = 'Предпочтения блёсен'
+        unique_together = ['base', 'fish_id']
+
+    def __str__(self):
+        return f"{self.base} - {self.fish_name} ({self.fish_id})"
