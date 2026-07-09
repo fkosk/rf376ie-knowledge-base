@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from .models import Fish, FishLog, Bait
+from .models import Fish, FishLog, Bait, SpinningLure, Pref, Base
 
 def get_field_verbose_names(request):
     """
@@ -212,20 +212,22 @@ def get_bait_statistics(request):
 
     return JsonResponse({'statistics': statistics})
 
+
 def find_average_bait_efficiency(request):
     """
     Calculate average bait efficiency across multiple fish.
+    - Regular baits: use Fish efficiency directly
+    - Spinning lures: multiply Fish efficiency by Pref efficiency per individual lure
     """
     fish_ids_str = request.GET.get('fish_ids', '')
     sizes_str = request.GET.get('sizes', '')
+    base = request.GET.get('base', '')
 
     if not fish_ids_str:
         return JsonResponse({'Ошибка': 'Выберите ID хотя бы одной рыбы'}, status=400)
 
-    # Parse fish IDs
     fish_ids = [fid.strip() for fid in fish_ids_str.split(',') if fid.strip()]
 
-    # Parse sizes - must match fish_ids count
     if sizes_str:
         sizes = [int(s.strip()) for s in sizes_str.split(',') if s.strip()]
     else:
@@ -242,13 +244,28 @@ def find_average_bait_efficiency(request):
         3: 'lures_large',
     }
 
-    # Get fish objects
+    size_suffix = {
+        1: 'Мал.',
+        2: 'Сред.',
+        3: 'Больш.',
+    }
+
     fish_objects = Fish.objects.filter(id__in=fish_ids)
     fish_map = {fish.id: fish for fish in fish_objects}
 
-    total_fish = len(fish_ids)
+    # Preload Pref data if base specified
+    pref_data = {}
+    if base:
+        prefs = Pref.objects.filter(base__iexact=base, fish_id__in=fish_ids)
+        for pref in prefs:
+            pref_data[pref.fish_id] = pref.spinning_lures
 
-    # Collect baits and scores
+    # Preload Bait translations
+    bait_translations = {}
+    for bait in Bait.objects.all():
+        bait_translations[bait.dev_name] = bait.russian_name
+
+    total_fish = len(fish_ids)
     bait_totals = {}
     bait_fish_count = {}
 
@@ -265,34 +282,77 @@ def find_average_bait_efficiency(request):
         if not lures:
             continue
 
-        for bait_name, score in lures.items():
+        for bait_name, fish_efficiency in lures.items():
+            # Check if spinning lure (has _1, _2, _3 suffix)
+            if '_' in bait_name:
+                parts = bait_name.rsplit('_', 1)
+                if parts[-1] in ('1', '2', '3'):
+                    lure_type = parts[0]
+                    size_code = parts[-1]
+                    size_label = size_suffix.get(int(size_code), '')
+
+                    # Only break down into individual lures if base is selected
+                    if base and fish_id in pref_data:
+                        individual_lures = SpinningLure.objects.filter(lure_type=lure_type)
+                        fish_prefs = pref_data[fish_id]
+
+                        for spinner in individual_lures:
+                            pref_efficiency = fish_prefs.get(spinner.lure_name, 0)
+                            if pref_efficiency > 0:
+                                final_score = fish_efficiency * pref_efficiency / 100
+                                result_key = f"{spinner.lure_name} ({size_label})"
+
+                                if result_key not in bait_totals:
+                                    bait_totals[result_key] = 0
+                                    bait_fish_count[result_key] = 0
+
+                                bait_totals[result_key] += final_score
+                                bait_fish_count[result_key] += 1
+                    else:
+                        # No base - treat spinner type as regular bait
+                        if bait_name not in bait_totals:
+                            bait_totals[bait_name] = 0
+                            bait_fish_count[bait_name] = 0
+                        bait_totals[bait_name] += fish_efficiency
+                        bait_fish_count[bait_name] += 1
+
+                    continue
+
+            # Regular bio bait
             if bait_name not in bait_totals:
                 bait_totals[bait_name] = 0
                 bait_fish_count[bait_name] = 0
 
-            bait_totals[bait_name] += score
+            bait_totals[bait_name] += fish_efficiency
             bait_fish_count[bait_name] += 1
 
-    # Calculate average - divide by total fish
+    # Calculate average
     bait_spread = []
     for bait_name in bait_totals:
-        avg_score = bait_totals[bait_name] / total_fish
-        bait_spread.append({
-            'bait_name': bait_name,
-            'average_score': round(avg_score, 2),
-            'total_score': bait_totals[bait_name],
-            'fish_count': bait_fish_count[bait_name],
-            'total_fish': total_fish,
-        })
+        if bait_fish_count[bait_name] > 0:
+            avg_score = bait_totals[bait_name] / total_fish
+            bait_spread.append({
+                'bait_name': bait_name,
+                'average_score': round(avg_score, 2),
+                'total_score': round(bait_totals[bait_name], 2),
+                'fish_count': bait_fish_count[bait_name],
+                'total_fish': total_fish,
+            })
 
     bait_spread.sort(key=lambda x: x['average_score'], reverse=True)
 
+    # Add Russian names
     for bait in bait_spread:
-        try:
-            bait_obj = Bait.objects.get(dev_name=bait['bait_name'])
-            bait['russian_name'] = bait_obj.russian_name
-        except Bait.DoesNotExist:
-            bait['russian_name'] = bait['bait_name']
+        # Check if it's an individual lure with size suffix
+        name = bait['bait_name']
+        if ' (' in name:
+            # "Circl-5000 (Мал.)" -> just use as display name
+            bait['russian_name'] = name
+            bait['lure_type'] = None
+        else:
+            # Regular bait - look up translation
+            bait['russian_name'] = bait_translations.get(name, name)
+            bait['lure_type'] = None
 
     return JsonResponse({'bait_spread': bait_spread})
 
@@ -322,3 +382,8 @@ def get_fish_list(request):
     fish_list.sort(key=lambda x: (x['name'], x['variant']))
 
     return JsonResponse({'fish_list': fish_list})
+
+def get_bases(request):
+    """API endpoint to return all bases"""
+    bases = list(Base.objects.values('dev_name', 'russian_name').order_by('russian_name'))
+    return JsonResponse({'bases': bases})
