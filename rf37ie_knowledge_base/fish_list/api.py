@@ -299,7 +299,7 @@ def find_average_bait_efficiency(request):
                         for spinner in individual_lures:
                             pref_efficiency = fish_prefs.get(spinner.lure_name, 0)
                             if pref_efficiency > 0:
-                                final_score = fish_efficiency * pref_efficiency / 100
+                                final_score = fish_efficiency * pref_efficiency * 3 / 100
                                 result_key = f"{spinner.lure_name} ({size_label})"
 
                                 if result_key not in bait_totals:
